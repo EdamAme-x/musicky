@@ -7,8 +7,11 @@ from musicky.out.output import render_wav_bytes
 
 
 def test_render_wav_bytes_starts_with_riff() -> None:
+    # Use the in-Python sine engine so the test exercises only the WAV
+    # container code, with no dependency on libfluidsynth or a real
+    # SoundFont being available in the environment.
     music = musicky(piano(clip(chord("C4, E4, G4"))))
-    data = render_wav_bytes(music, sample_rate=8000)
+    data = render_wav_bytes(music, engine="sine", sample_rate=8000)
     assert data[:4] == b"RIFF"
     assert data[8:12] == b"WAVE"
 
@@ -16,19 +19,25 @@ def test_render_wav_bytes_starts_with_riff() -> None:
 def test_output_writes_wav_file(tmp_path: Path) -> None:
     out = tmp_path / "song.wav"
     music = musicky(piano(clip(chord("C4, E4, G4"))), bass(clip(chord("C2"))))
-    output(music, out, sample_rate=8000)
+    output(music, out, engine="sine", sample_rate=8000)
     assert out.exists()
     assert out.read_bytes()[:4] == b"RIFF"
 
 
 def test_output_unsupported_format_raises(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="unsupported"):
-        output(musicky(piano(clip(chord("C4")))), tmp_path / "out.xyz")
+        output(musicky(piano(clip(chord("C4")))), tmp_path / "out.xyz", engine="sine")
 
 
 def test_output_format_override(tmp_path: Path) -> None:
     out = tmp_path / "song.dat"
-    output(musicky(piano(clip(chord("C4")))), out, format="wav", sample_rate=8000)
+    output(
+        musicky(piano(clip(chord("C4")))),
+        out,
+        format="wav",
+        engine="sine",
+        sample_rate=8000,
+    )
     assert out.read_bytes()[:4] == b"RIFF"
 
 
@@ -83,4 +92,9 @@ def test_output_mp3_without_ffmpeg(monkeypatch: pytest.MonkeyPatch, tmp_path: Pa
 
     monkeypatch.setattr(real_shutil, "which", lambda _name: None)
     with pytest.raises(RuntimeError, match="ffmpeg"):
-        output(musicky(piano(clip(chord("C4")))), tmp_path / "out.mp3", sample_rate=8000)
+        output(
+            musicky(piano(clip(chord("C4")))),
+            tmp_path / "out.mp3",
+            engine="sine",
+            sample_rate=8000,
+        )
