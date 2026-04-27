@@ -1,13 +1,4 @@
-"""Dogfooding example: a backing track for a vocaloid-style song.
-
-A driving piano-rock backing in A minor that leaves room for a vocal
-melody on top. Standard song shape: intro / A / B / chorus / interlude
-/ A / B / chorus / outro. Renders ``example.mid`` and ``example.wav``
-next to this file.
-
-Mix philosophy: the vocal sits in the mid-range, so piano and guitar
-get a small mid cut and effects stay minimal — just enough reverb to
-glue the band together.
+"""Dogfooding example: a backing track for a example-style song.
 """
 
 from pathlib import Path
@@ -205,7 +196,7 @@ music = musicky(
         drum_part,
     ),
     bpm=BPM,
-    name="vocaloid backing",
+    name="example",
 )
 
 # --- Render -------------------------------------------------------------------
